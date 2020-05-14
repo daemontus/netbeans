@@ -53,6 +53,10 @@
                 <runtime-relative-path>ext/truffle-api-19.3.0.jar</runtime-relative-path>
                 <binary-origin>external/truffle-api-19.3.0.jar</binary-origin>
             </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/truffle-dsl-processor-19.3.0.jar</runtime-relative-path>
+                <binary-origin>external/truffle-dsl-processor-19.3.0.jar</binary-origin>
+            </class-path-extension>
         </data>
     </configuration>
 </project>
