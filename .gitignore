@@ -101,3 +101,6 @@ derby.log
 /groovy/gradle/netbeans-gradle-tooling/gradle/wrapper/gradle-wrapper.jar
 /groovy/gradle/release/modules/gradle/daemon-loader/.gradle/
 /nbbuild/misc/prepare-bundles/target/
+
+# Temporary files from heap dump analysis (generated during tests)
+*.hwcache
