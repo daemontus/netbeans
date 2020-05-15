@@ -92,6 +92,32 @@
                         <specification-version>9.3</specification-version>
                     </run-dependency>
                 </dependency>
+                <dependency>
+                    <code-name-base>org.netbeans.libs.graalsdk</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <specification-version>1.4</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>org.netbeans.libs.truffleapi</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <specification-version>1.5</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>org.netbeans.libs.graaljs</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <!-- Not sure why this makes the build fail, but apparently it is not needed anyway...
+                    <run-dependency>
+                        <specification-version>1.0</specification-version>
+                    </run-dependency>
+                    -->
+                </dependency>
             </module-dependencies>
             <test-dependencies>
                 <test-type>
