@@ -18,11 +18,11 @@
  */
 package org.netbeans.modules.profiler.oql.engine.api;
 
+import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.netbeans.lib.profiler.heap.Heap;
-import org.netbeans.modules.profiler.oql.engine.api.impl.OQLEngineImpl;
-import org.netbeans.modules.profiler.oql.engine.api.impl.Snapshot;
+import org.netbeans.modules.profiler.oql.engine.api.impl.truffle.OQLEngineImpl;
 
 /**
  * This is Object Query Language Interpreter
@@ -70,8 +70,16 @@ final public class OQLEngine {
     }
 
     public OQLEngine(Heap heap) {
-        delegate = new OQLEngineImpl(new Snapshot(heap, this));
-        this.heap = heap;
+        if (!(heap instanceof Heap.Lazy)) {
+            throw new IllegalArgumentException("Heap was not created using HeapFactory.");
+        }
+        Heap.Lazy lazy = (Heap.Lazy) heap;
+        try {
+            delegate = new OQLEngineImpl(lazy.getHeapFile());
+            this.heap = heap;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }     
     }
 
     public Heap getHeap() {
