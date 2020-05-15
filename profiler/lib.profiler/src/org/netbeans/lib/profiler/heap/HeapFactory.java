@@ -26,6 +26,10 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
 
 
 /**
@@ -36,9 +40,9 @@ public class HeapFactory {
     //~ Methods ------------------------------------------------------------------------------------------------------------------
 
     /**
-     * this factory method creates {@link Heap} from a memory dump file in Hprof format.
+     * this factory method creates lazy {@link Heap} from a memory dump file in Hprof format.
      * <br>
-     * Speed: slow
+     * Speed: fast (but first method call on the heap object is slow)
      * @param heapDump file which contains memory dump
      * @return implementation of {@link Heap} corresponding to the memory dump
      * passed in heapDump parameter
@@ -63,6 +67,11 @@ public class HeapFactory {
      * @throws java.io.IOException if I/O error occurred while accessing heapDump file
      */
     public static Heap createHeap(File heapDump, int segment)
+                           throws FileNotFoundException, IOException {
+        return new LazyHeapImpl(heapDump, segment);        
+    }
+
+    private static Heap createHeapExplicit(File heapDump, int segment)
                            throws FileNotFoundException, IOException {
         CacheDirectory cacheDir = CacheDirectory.getHeapDumpCacheDirectory(heapDump);
         if (!cacheDir.isTemporary()) {
@@ -89,6 +98,120 @@ public class HeapFactory {
         Heap heap = new HprofHeap(dis, cacheDir);
         dis.close();
         return heap;
+    }
+
+    private static class LazyHeapImpl implements Heap.Lazy {
+
+        private final File heapFile;
+        private final int segment;
+
+        private Heap lazy;
+
+        public LazyHeapImpl(File heapFile, int segment) {
+            this.heapFile = heapFile;
+            this.segment = segment;
+        }
+
+        @Override
+        public File getHeapFile() {
+            return this.heapFile;
+        }
+
+        @Override
+        public int getHeapSegment() {
+            return this.segment;
+        }
+
+        private synchronized Heap initLazy() {            
+            if (this.lazy == null) {
+                try {
+                    this.lazy = HeapFactory.createHeapExplicit(heapFile, segment);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            return this.lazy;
+        }
+
+        
+        @Override
+        public List /*<JavaClass>*/ getAllClasses() {
+            Heap instance = (lazy != null) ? lazy : initLazy();
+            return instance.getAllClasses();            
+        }
+    
+        @Override
+        public List /*<Instance>*/ getBiggestObjectsByRetainedSize(int number) {
+            Heap instance = (lazy != null) ? lazy : initLazy();
+            return instance.getBiggestObjectsByRetainedSize(number);            
+        }
+    
+        @Override
+        public GCRoot getGCRoot(Instance instance) {
+            Heap heap = (lazy != null) ? lazy : initLazy();
+            return heap.getGCRoot(instance);
+        }
+
+        @Override
+        public Collection /*<GCRoot>*/ getGCRoots() {
+            Heap instance = (lazy != null) ? lazy : initLazy();
+            return instance.getGCRoots();
+        }
+
+        @Override
+        public Instance getInstanceByID(long instanceId) {
+            Heap instance = (lazy != null) ? lazy : initLazy();
+            return instance.getInstanceByID(instanceId);
+        }
+
+        @Override
+        public JavaClass getJavaClassByID(long javaclassId) {
+            Heap instance = (lazy != null) ? lazy : initLazy();
+            return instance.getJavaClassByID(javaclassId);
+        }
+
+        @Override
+        public JavaClass getJavaClassByName(String fqn) {
+            Heap instance = (lazy != null) ? lazy : initLazy();
+            return instance.getJavaClassByName(fqn);
+        }
+
+        @Override
+        public Collection getJavaClassesByRegExp(String regexp) {
+            Heap instance = (lazy != null) ? lazy : initLazy();
+            return instance.getJavaClassesByRegExp(regexp);
+        }
+
+        @Override
+        public Iterator getAllInstancesIterator() {
+            Heap instance = (lazy != null) ? lazy : initLazy();
+            return instance.getAllInstancesIterator();
+        }
+    
+        @Override
+        public HeapSummary getSummary() {
+            Heap instance = (lazy != null) ? lazy : initLazy();
+            return instance.getSummary();
+        }
+
+        @Override
+        public Properties getSystemProperties() {
+            Heap instance = (lazy != null) ? lazy : initLazy();
+            return instance.getSystemProperties();
+        }
+
+        @Override
+        public boolean isRetainedSizeComputed() {
+            Heap instance = (lazy != null) ? lazy : initLazy();
+            return instance.isRetainedSizeComputed();
+        }
+
+        @Override
+        public boolean isRetainedSizeByClassComputed() {
+            Heap instance = (lazy != null) ? lazy : initLazy();
+            return instance.isRetainedSizeByClassComputed();
+        }
+
     }
     
 }

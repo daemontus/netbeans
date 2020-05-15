@@ -19,6 +19,7 @@
 
 package org.netbeans.lib.profiler.heap;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -30,6 +31,25 @@ import java.util.Properties;
  * @author Tomas Hurka
  */
 public interface Heap {
+
+    /**
+     * A variant of Heap that is loaded lazily and provides access to the original file/segment that was
+     * used to create the heap
+     */
+    interface Lazy extends Heap {
+
+        /**
+         * Original file used to create the heap object.
+         */
+        File getHeapFile();
+
+        /**
+         * Original heap segment used to create the heap object.
+         */
+        int getHeapSegment();
+
+    }
+
     //~ Methods ------------------------------------------------------------------------------------------------------------------
 
     /**
